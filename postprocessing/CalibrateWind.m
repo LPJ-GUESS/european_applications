@@ -51,6 +51,9 @@ end
 
 
 %%% READING OF WIND DAMAGE PROBABILITY INTO MAPPING FORMAT %%%
+% Original file (WDP_10km.tif) has a resolution of 10 km and the projection
+% is epsg:3035 (Lamberts Equal Area). It was converted to a 0.5 degree
+% resolution txt-file in ArgGIS Pro 
 wdplist = dlmread('C:\Users\Fredrik.Lagergren\Documents\FORECO\CorneliusWDPmap\wdp_05deg_from01deg_colinear.txt','\t',1,0);
 % Format "Lon Lat WindDamageProbability" Annual probability of a severe storm based on wind data from 1986-2020
 
