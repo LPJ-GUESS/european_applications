@@ -3,7 +3,7 @@
 
 //************************************************************ HAOMING MODIFY *****************************************
 // Define this first time you use a plot file, then this can be commented out for faster run.
-#define USE_FILE_WITHOUT_PFT
+//#define USE_FILE_WITHOUT_PFT
 //*********************************************************************************************************************
 
 #include <stdio.h>
@@ -230,13 +230,15 @@ int main(int argc,char* argv[]) {
 #ifndef USE_FILE_WITHOUT_PFT
 // This option is to use input file with PFT already in one column, this file is created the first run without this option, it's called, xxx_addPFT.txt
 //************************************************************ HAOMING MODIFY *****************************************
-	char fileName[] = "C:\\Forest_init_C\\Windows text format\\NFI_SwedenGermany3_Biomass_addPFT.txt";
+//	char fileName[] = "C:\\Forest_init_C\\Windows text format\\NFI_SwedenGermany3_Biomass_addPFT.txt";
+	char fileName[] = "C:\\Forest_init_C\\\\NFI_SwedenGermany3_Biomass_CRLF_noNGE_addPFT.txt";	// Input files sorted by plot name
 //*********************************************************************************************************************
 #else
 // This option needed is needed the first run, to create input file with PFT in one column, called, xxx_addPFT.txt. After this, it's faster to use the other option
 //************************************************************ HAOMING MODIFY *****************************************
 	char fileName_species_map[] = "E:\\Forest_init\\Haoming\\Species Mapping_Final Result_NoShrub_fixed.txt";	// Input file with species and PFT columns
-	char fileName_sort[] = "C:\\Forest_init_C\\Windows text format\\NFI_SwedenGermany3_Biomass.txt";	// Input files sorted by plot name
+//	char fileName_sort[] = "C:\\Forest_init_C\\Windows text format\\NFI_SwedenGermany3_Biomass.txt";	// Input files sorted by plot name
+	char fileName_sort[] = "E:\\Forest_init\\NFI_SwedenGermany3_Biomass_CRLF_noNGE.txt\\NFI_SwedenGermany3_Biomass_CRLF_noNGE.txt";	// Input files sorted by plot name
 //*********************************************************************************************************************	
 	char *fileName = NULL;	// Temporary input file with PFT column added
 	char tag_addPFT[] = "_addPFT";
@@ -605,8 +607,8 @@ int main(int argc,char* argv[]) {
 							treeid_col = i;
 						else if(!strcmp(s1[i], "ba"))	// mm2
 							ba_col = i;
-						else if(!strcmp(s1[i], "agb"))	// unit ?
-	//						else if(!strcmp(s1[i], "biomass"))	// Updated 220324
+//						else if(!strcmp(s1[i], "agb"))	// ton/tree
+						else if(!strcmp(s1[i], "biomass"))	// Updated 220324, again 240912
 							agb_col = i;
 						else if(!strcmp(s1[i], "height"))
 							height_col = i;
@@ -649,7 +651,8 @@ int main(int argc,char* argv[]) {
 //							if(treedens_col != -1)
 							fprintf(ofp_init, "%s\t", "dens");
 							if(agb_col != -1)
-								fprintf(ofp_init, "%s\t", "agb");
+//								fprintf(ofp_init, "%s\t", "agb");
+								fprintf(ofp_init, "%s\t", "biomass");	// 240912
 							if(ba_col != -1)
 								fprintf(ofp_init, "%s\t", "ba");
 							if(bole_height_col != -1)
@@ -739,7 +742,8 @@ int main(int argc,char* argv[]) {
 								int ncohorts = 0;
 
 								for(int pft=0;pft<NPFTS;pft++) {
-									for(int db=0; db<ndiam_bins; db++) {
+//									for(int db=0; db<ndiam_bins; db++) {
+									for(int db=0; db<ndiam_bins + 1; db++) {
 
 										int ntrees_cohort = 0;
 										for(int i=0; i<MAX_NTREES_PER_PLOT;i++) {
@@ -747,7 +751,8 @@ int main(int argc,char* argv[]) {
 												if(!strcmp(establish_list.tree_array[i].pft_name, PFTNAMES[pft])) {
 													double diam_indiv = establish_list.tree_array[i].diam;
 													if(diam_indiv != 0.0 && diam_indiv >= diam_bin_min + (diam_bin_size * db)
-														&& diam_indiv < diam_bin_min + (diam_bin_size * (db +1))) {
+//														&& diam_indiv < diam_bin_min + (diam_bin_size * (db +1))) {
+														&& (diam_indiv < diam_bin_min + (diam_bin_size * (db + 1)) || (db == ndiam_bins))) {
 
 														ntrees_cohort++;
 													}
@@ -897,7 +902,8 @@ int main(int argc,char* argv[]) {
 
 								int ncohorts = 0;
 								for(int pft=0;pft<NPFTS;pft++) {
-									for(int db=0; db<ndiam_bins; db++) {
+//									for(int db=0; db<ndiam_bins; db++) {
+									for(int db=0; db<ndiam_bins + 1; db++) {
 
 										// NB: trees with diameter 0 are ignored here !
 										double diam_cohort = 0.0;
@@ -911,7 +917,8 @@ int main(int argc,char* argv[]) {
 												if(!strcmp(establish_list.tree_array[i].pft_name, PFTNAMES[pft])) {	// Går inte in här !!!
 													double diam_indiv = establish_list.tree_array[i].diam;
 													if(diam_indiv != 0.0 && diam_indiv >= diam_bin_min + (diam_bin_size * db)
-														&& diam_indiv < diam_bin_min + (diam_bin_size * (db +1))) {
+//														&& diam_indiv < diam_bin_min + (diam_bin_size * (db +1))) {
+														&& (diam_indiv < diam_bin_min + (diam_bin_size * (db + 1)) || (db == ndiam_bins))) {
 
 														diam_cohort += diam_indiv;
 														height_cohort += establish_list.tree_array[i].height;
@@ -935,6 +942,7 @@ int main(int argc,char* argv[]) {
 
 											diam_cohort /= ntrees_cohort;
 											height_cohort /= ntrees_cohort;
+											agb_cohort /= ntrees_cohort;	// 240912
 
 											fprintf(ofp_init, "%.9f\t%.9f\t", last_lon, last_lat);
 											fprintf(ofp_init, "%d\t", ncohorts);
@@ -942,12 +950,16 @@ int main(int argc,char* argv[]) {
 		//									fprintf(ofp_init, "%f\t", establish_list.est_array[ncohorts].diam);
 											fprintf(ofp_init, "%f\t", diam_cohort / 10.0);		// mm to cm
 											fprintf(ofp_init, "%f\t", height_cohort);		// m ?
-											fprintf(ofp_init, "%f\t", dens_cohort);		// tree/ha			
-											fprintf(ofp_init, "%f\t", agb_cohort / plot_area);						// sum of agb of trees in chohort	UNIT ??	; per ha
-											fprintf(ofp_init, "%f\t", ba_cohort / plot_area / 1000000.0);			// sum of ba of trees in chohort; mm2 to m2	; m2 per ha
+											fprintf(ofp_init, "%f\t", dens_cohort);		// tree/ha
+											// 240612
+//											fprintf(ofp_init, "%f\t", agb_cohort / plot_area);						// sum of agb of trees in chohort	UNIT ??	; per ha
+//											fprintf(ofp_init, "%f\t", ba_cohort / plot_area / 1000000.0);			// sum of ba of trees in chohort; mm2 to m2	; m2 per ha
+											fprintf(ofp_init, "%f\t", agb_cohort);						// sum of agb of trees in chohort	tree cohort mean
+											fprintf(ofp_init, "%d\t", -1);			// ba: unclear which unit, don't use for now
 											fprintf(ofp_init, "%d\t", 0);			// firstyear
 											fprintf(ofp_init, "%s\t", last_plotid);
-											fprintf(ofp_init, "%f\t", plot_area);	// ha
+//											fprintf(ofp_init, "%f\t", plot_area);	// ha
+											fprintf(ofp_init, "%d\t", -1);	// ha (not known in this plot input version)
 											fprintf(ofp_init, "%d\t", use_census);
 											fprintf(ofp_init, "%d\t", use_census_year);
 											if(use_census_closest_to_default_year)
@@ -999,7 +1011,7 @@ int main(int argc,char* argv[]) {
 									fprintf(ofp_init, "%s\t", last_plotid);
 									fprintf(ofp_init, "%d\t", -1);
 									if(use_census && !i)
-										fprintf(ofp_init, "%d\t", use_census);		// print selected census_no that has no livimg trees
+										fprintf(ofp_init, "%d\t", use_census);		// print selected census_no that has no living trees
 									else
 										fprintf(ofp_init, "%d\t", -1);
 									if(use_census_year && !i)
