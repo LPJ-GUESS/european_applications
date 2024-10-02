@@ -3,7 +3,7 @@
 
 //************************************************************ HAOMING MODIFY *****************************************
 // Define this first time you use a plot file, then this can be commented out for faster run.
-//#define USE_FILE_WITHOUT_PFT
+#define USE_FILE_WITHOUT_PFT
 //*********************************************************************************************************************
 
 #include <stdio.h>
